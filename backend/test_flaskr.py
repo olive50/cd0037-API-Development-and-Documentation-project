@@ -25,15 +25,17 @@ class TriviaTestCase(unittest.TestCase):
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
+        # in order to test creat new question
+        self.new_question = {
+            "question": "What is an Exemple of python micro framwork?",
+            "answer": "Flask",
+            "category": "1",
+            "difficulty": 1
+        }
 
     def tearDown(self):
         """Executed after reach test"""
         pass
-
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
 
     def test_retrieve_categories(self):
         resources = self.client().get('/categories')
@@ -42,6 +44,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(resources.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertGreater(len(data['categories']), 5)
+
+    def test_retrieve_questions(self):
+
+        res = self.client().get('/questions?page=1')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+        self.assertTrue(data['questions'])
+        self.assertIsInstance(data['questions'], list)
+        self.assertEqual(len(data['questions']), 10)
+
+        self.assertGreater(data['total_questions'], 15)
+
+        self.assertTrue(data['categories'])
+        self.assertEqual(len(data['categories']), 6)
+        self.assertIsInstance(data['categories'], dict)
+        self.assertEqual(data['current_category'], 'All')
 
 
 # Make the tests conveniently executable
